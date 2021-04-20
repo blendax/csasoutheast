@@ -155,16 +155,24 @@ dbutils.fs.rm(f"abfss://lake@{lake_name}/bronze/taxidemo/zones", True)
 
 # COMMAND ----------
 
-# MAGIC %sql 
-# MAGIC CREATE TABLE IF NOT EXISTS zones_bronze
-# MAGIC (
-# MAGIC   LocationID integer, 
-# MAGIC   Borough string, 
-# MAGIC   Zone string, 
-# MAGIC   service_zone string
-# MAGIC )
-# MAGIC USING delta
-# MAGIC LOCATION 'abfss://lake@fieldengdeveastus2adls.dfs.core.windows.net/bronze/taxidemo/zones'
+
+print(f"{lake_name}")
+
+# COMMAND ----------
+
+# Fixed naming of storage account not to be hard-coded
+query = f"""
+CREATE TABLE IF NOT EXISTS zones_bronze
+(
+  LocationID integer, 
+  Borough string, 
+  Zone string, 
+  service_zone string
+)
+USING delta
+LOCATION 'abfss://lake@{lake_name}/bronze/taxidemo/zones'
+"""
+spark.sql(query)
 
 # COMMAND ----------
 

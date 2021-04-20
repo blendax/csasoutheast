@@ -40,7 +40,8 @@ spark.conf.set("spark.sql.shuffle.partitions", "1")
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC #### Process TripData Gold Delta Lake table stream by using foreachBatch and the Synapse Batch API to overwrite Synapse dbo.tripdata_summary table of aggregations with each microbatch.  The streaming support in the Synapse connector doesn't give fine grain control with preActions/postActions
+# MAGIC ##### Process TripData Gold Delta Lake table stream
+# MAGIC by using foreachBatch and the Synapse Batch API to overwrite Synapse dbo.tripdata_summary table of aggregations with each microbatch.  The streaming support in the Synapse connector doesn't give fine grain control with preActions/postActions
 
 # COMMAND ----------
 
@@ -68,3 +69,7 @@ def tripdata_gold_batch(df, batchId):
     .trigger(processingTime="1 minute")
     .start()
 )
+
+# COMMAND ----------
+
+# stop_all_streams()

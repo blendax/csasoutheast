@@ -8,6 +8,8 @@
 # MAGIC - Blob Storage account with container named "ingest" along with key, connection string, resource group name, and subscription id
 # MAGIC - ADLS Gen 2 Storage account with a container named "lake"
 # MAGIC - Service Principal with client id, client secret, and Azure AD tenant_id with access to ADLS Gen 2 
+# MAGIC - EventHub with connection string
+# MAGIC - Synpase jdbc URL
 # MAGIC - Setup the secrets using a linked Azure Key Vault secret scope: https://docs.microsoft.com/en-us/azure/databricks/security/secrets/secret-scopes
 # MAGIC 
 # MAGIC ###Results
@@ -18,22 +20,30 @@
 
 # COMMAND ----------
 
-blob_name = "fieldengdeveastus2sa.blob.core.windows.net"
-blob_key = dbutils.secrets.get("taxi-demo-scope","taxi-blob-key") 
-blob_connection = dbutils.secrets.get("taxi-demo-scope","taxi-blob-connection")   
-client_id = "1bcf0495-6572-4f0d-a35b-8a9c785836b9"
-client_secret = dbutils.secrets.get("taxi-demo-scope","taxi-sp-key")  
-tenant_id = "9f37a392-f0ae-4280-9796-f1864a10effc"
-lake_name = "fieldengdeveastus2adls.dfs.core.windows.net"
-resource_group_name = "field-eng-dev-eastus2-rg"
-subscription_id = "3f2e4d32-8e8d-46d6-82bc-5bb8d962328b"
-eh_connection_string = dbutils.secrets.get("taxi-demo-scope","taxi-eh-connection")
+blob_name = "datasetsnortheu.blob.core.windows.net" # "fieldengdeveastus2sa.blob.core.windows.net"
+blob_key = dbutils.secrets.get("taxi-demo-scope","blob-datasetsnortheu") # blob_key = dbutils.secrets.get("taxi-demo-scope","taxi-blob-key") 
+blob_connection = dbutils.secrets.get("taxi-demo-scope","blobdatasetsnortheuconstr") # blob_connection = dbutils.secrets.get("taxi-demo-scope","taxi-blob-connection")  
+
+# client_id = "1bcf0495-6572-4f0d-a35b-8a9c785836b9"
+client_id = dbutils.secrets.get("taxi-demo-scope","datasetneugen2-sp-app-id")
+client_secret = dbutils.secrets.get("taxi-demo-scope","datasetneugen2-sp-secret")  
+# client_secret = dbutils.secrets.get("taxi-demo-scope","taxi-sp-key")  
+tenant_id = dbutils.secrets.get("taxi-demo-scope","tenantId") # "72f988bf-86f1-41af-91ab-2d7cd011db47"
+lake_name = "datasetsneugen2.dfs.core.windows.net" # "fieldengdeveastus2adls.dfs.core.windows.net"
+
+resource_group_name = "RGSparkHDI" # Fr the blob storage account? "field-eng-dev-eastus2-rg"
+
+subscription_id = dbutils.secrets.get("taxi-demo-scope","subscriptionId") # "3f2e4d32-8e8d-46d6-82bc-5bb8d962328b"
+
+eh_connection_string = dbutils.secrets.get("taxi-demo-scope","eventhub-cdcpoc-connestion-string")#  dbutils.secrets.get("taxi-demo-scope","taxi-eh-connection")
+
 eh_connection_encrypted = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(eh_connection_string)
-synapse_jdbc_url = dbutils.secrets.get("taxi-demo-scope","taxi-synapse-jdbc-url") 
-cluster_cores = 32
+
+synapse_jdbc_url = dbutils.secrets.get("taxi-demo-scope","synapsene-jdbc-url")
+#jdbc:sqlserver://synapsene.sql.azuresynapse.net:1433;database=GetStartedSQL;user=user@synapsename;password=YourPassword;encrypt=true;trustServerCertificate=true;hostNameInCertificate=*.sql.azuresynapse.net;loginTimeout=30;"
 
 kafka_topic = "taxidemo"
-kafka_bootstrap_servers = "fieldengdeveastus2ehb.servicebus.windows.net:9093"
+kafka_bootstrap_servers = "cdcpoc.servicebus.windows.net:9093" # "fieldengdeveastus2ehb.servicebus.windows.net:9093"
 kafka_sasl_jaas_config = f"kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"{eh_connection_string}\";"
 
 # COMMAND ----------
